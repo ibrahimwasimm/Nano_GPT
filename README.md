@@ -1,133 +1,185 @@
-🧠 NanoGPT — Transformer from Scratch
+# nanoGPT
 
-This project builds a mini GPT model from scratch using PyTorch to understand the inner workings of modern Large Language Models (LLMs).
+> A minimal, clean, and fast implementation of GPT for training and fine-tuning medium-sized language models — by [Andrej Karpathy](https://github.com/karpathy).
 
-Instead of using large pretrained models, this project focuses on learning the core architecture behind systems like ChatGPT, Claude, and Gemini.
+---
 
-📌 About the Project
+## 📌 Overview
 
-This is a character-level language model that learns from raw text and predicts the next character in a sequence.
+**nanoGPT** is the simplest and fastest repository for training and fine-tuning GPT-2 style models. It is designed to be readable, hackable, and educational — stripping away complexity while remaining fully functional for real-world use cases.
 
-Rather than simple classification, this is a sequence prediction problem, where the model learns to generate coherent text one token at a time.
+Whether you're a researcher, student, or developer, nanoGPT gives you a clean foundation to understand how GPT models work under the hood.
 
-🏗️ Architecture Overview
+---
 
-The data flow follows this pipeline:
-Raw Text → Encoding → Embeddings → Transformer Blocks → Output (Predictions)
+## ✨ Features
 
-Key Components Included:
+- Minimal codebase — easy to read and modify
+- Trains GPT-2 (small to XL) from scratch
+- Fine-tune on any custom text dataset
+- Supports multi-GPU training via PyTorch DDP
+- Mixed precision training (float16 / bfloat16)
+- Reproduces GPT-2 results on OpenWebText
+- Compatible with OpenAI's pretrained GPT-2 weights
 
-Token Embeddings: Mapping characters to vectors.
+---
 
-Positional Embeddings: Giving the model a sense of "where" a character is in a sentence.
+## 📁 Project Structure
+```
+nanoGPT/
+│
+├── model.py          # GPT model definition (transformer architecture)
+├── train.py          # Training loop
+├── sample.py         # Text generation / sampling script
+├── config/           # Configuration files for different training runs
+├── data/             # Data preparation scripts
+│   ├── shakespeare_char/
+│   └── openwebtext/
+└── bench.py          # Benchmarking script
+```
 
-Multi-Head Self-Attention: Allowing tokens to communicate with each other.
+---
 
-Feed Forward Layers: Processing the information gathered by attention.
+## ⚙️ Requirements
 
-Residual Connections: Helping gradients flow during deep training.
+- Python 3.8+
+- PyTorch 2.0+
+- numpy
+- transformers (for GPT-2 tokenizer)
+- datasets (for OpenWebText)
+- tiktoken (OpenAI's tokenizer)
 
-Layer Normalization: Keeping the internal math stable.
+Install all dependencies:
+```bash
+pip install torch numpy transformers datasets tiktoken wandb tqdm
+```
 
-⚙️ Model Configuration
+---
 
-The following hyperparameters are used to balance training speed and model depth:
+## 🚀 Quick Start
 
-batch_size    = 16      # How many independent sequences per batch?
-block_size    = 32      # Maximum context length for predictions
-n_embed       = 32      # Size of our embedding vectors
-n_head        = 4       # Number of attention heads
-n_layer       = 4       # Number of transformer blocks
-learning_rate = 1e-3    # Speed of weight updates
-max_iters     = 5000    # Total training steps
+### 1. Train on Shakespeare (Character-level)
 
+A fast demo you can run on any laptop in a few minutes:
+```bash
+# Prepare the dataset
+python data/shakespeare_char/prepare.py
 
-🛠️ Tools & Libraries
+# Train the model
+python train.py config/train_shakespeare_char.py
+```
 
-Python: Core language for development.
+### 2. Sample / Generate Text
+```bash
+python sample.py --out_dir=out-shakespeare-char
+```
 
-PyTorch: Deep learning framework for tensor operations.
+### 3. Fine-tune GPT-2 on Custom Data
+```bash
+# Prepare your dataset (place your text in data/mydata/input.txt)
+python data/shakespeare_char/prepare.py
 
-NumPy: Numerical processing and data handling.
+# Fine-tune using GPT-2 pretrained weights
+python train.py config/finetune_shakespeare.py
+```
 
-🧠 Core Components
+---
 
-🔹 Self-Attention
+## 🧠 Model Architecture
 
-Each token looks at previous tokens to understand context using:
+nanoGPT implements a standard **decoder-only Transformer** (same as GPT-2):
 
-Query → What it is looking for.
+| Component | Description |
+|---|---|
+| Embedding | Token + Positional Embeddings |
+| Attention | Causal Multi-Head Self-Attention |
+| FFN | 2-layer MLP with GELU activation |
+| Normalization | LayerNorm (pre-norm style) |
+| Output | Linear projection to vocabulary |
 
-Key → What it contains (its "profile").
+Supported model sizes:
 
-Value → What it shares (the actual content).
+| Model | Layers | Heads | Embedding Dim | Parameters |
+|---|---|---|---|---|
+| GPT-2 Small | 12 | 12 | 768 | ~124M |
+| GPT-2 Medium | 24 | 16 | 1024 | ~350M |
+| GPT-2 Large | 36 | 20 | 1280 | ~774M |
+| GPT-2 XL | 48 | 25 | 1600 | ~1.5B |
 
-🔹 Transformer Blocks
+---
 
-Each block performs:
+## 🖥️ Multi-GPU Training
 
-Attention: Communication between tokens to gather context.
+nanoGPT supports distributed training using **PyTorch DDP**:
+```bash
+torchrun --standalone --nproc_per_node=4 train.py config/train_gpt2.py
+```
 
-FeedForward: Processing information on a per-token basis.
+This will use 4 GPUs on a single machine.
 
-Residual connections: Retaining previous knowledge.
+---
 
-🔄 Training Process
+## 📊 Reproducing GPT-2 on OpenWebText
+```bash
+# Prepare OpenWebText dataset (requires ~54GB disk space)
+python data/openwebtext/prepare.py
 
-The model learns by repeating the following loop:
+# Train GPT-2 (124M) — requires ~8x A100 GPUs
+torchrun --standalone --nproc_per_node=8 train.py config/train_gpt2.py
+```
 
-Sample a batch of text from the training set.
+Expected result: **~2.85 validation loss** on OpenWebText (matches the original GPT-2 paper).
 
-Predict the next tokens in the sequence.
+---
 
-Calculate the loss (cross-entropy) between prediction and reality.
+## 🔧 Configuration
 
-Backpropagate errors through the network.
+Training runs are configured via Python config files in the `config/` folder. Key parameters:
+```python
+# model
+n_layer = 12
+n_head = 12
+n_embd = 768
+block_size = 1024
+dropout = 0.0
 
-Update weights using the AdamW optimizer.
+# training
+batch_size = 12
+max_iters = 600000
+learning_rate = 6e-4
+```
 
-📊 Results
+---
 
-Step
+## 💡 Key Concepts for Beginners
 
-Loss
+| Term | What It Means |
+|---|---|
+| **Token** | A chunk of text (word or character) the model reads |
+| **Embedding** | A number vector that represents a token |
+| **Attention** | Mechanism that lets tokens "look at" each other |
+| **Loss** | How wrong the model's predictions are (lower = better) |
+| **Fine-tuning** | Training a pretrained model on your own data |
 
-Status
+---
 
-0
+## 📚 Learning Resources
 
-~4.2
+- [Andrej Karpathy's YouTube — "Let's build GPT"](https://www.youtube.com/watch?v=kCc8FmEb1nY)
+- [Original GPT-2 Paper — OpenAI](https://openai.com/research/language-unsupervised)
+- [Attention Is All You Need — Vaswani et al.](https://arxiv.org/abs/1706.03762)
+- [The Annotated Transformer](http://nlp.seas.harvard.edu/annotated-transformer/)
 
-Initial random guessing
+---
 
-500
+## 🙏 Credits
 
-~2.1
+Built and maintained by **[Andrej Karpathy](https://github.com/karpathy)**.
 
-Learning basic character patterns
+Inspired by the original [GPT-2](https://github.com/openai/gpt-2) and [minGPT](https://github.com/karpathy/minGPT) repositories.
 
-5000
+---
 
-~0.8
+## 📄 License
 
-Generating meaningful patterns
-
-Note: The decreasing loss shows the model is effectively learning meaningful patterns from the text.
-
-✨ Text Generation
-
-After training, the model can generate text:
-
-Input: Once upon a time
-
-Output: Once upon a time there was a king...
-
-Text is generated one token at a time (autoregressive).
-
-🙌 Acknowledgment
-
-Inspired by Andrej Karpathy’s NanoGPT and his educational series on building Transformers.
-
-📌 Final Note
-
-This project is a mini version of GPT, but the same fundamental architecture powers today’s most advanced AI systems like GPT-4 and Gemini.
+MIT License — free to use, modify, and distribute.

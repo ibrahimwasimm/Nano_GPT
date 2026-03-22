@@ -22,21 +22,6 @@ Whether you're a researcher, student, or developer, nanoGPT gives you a clean fo
 - Reproduces GPT-2 results on OpenWebText
 - Compatible with OpenAI's pretrained GPT-2 weights
 
----
-
-## 📁 Project Structure
-```
-nanoGPT/
-│
-├── model.py          # GPT model definition (transformer architecture)
-├── train.py          # Training loop
-├── sample.py         # Text generation / sampling script
-├── config/           # Configuration files for different training runs
-├── data/             # Data preparation scripts
-│   ├── shakespeare_char/
-│   └── openwebtext/
-└── bench.py          # Benchmarking script
-```
 
 ---
 

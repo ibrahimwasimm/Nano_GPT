@@ -33,6 +33,7 @@ The data flow follows this pipeline:
 
 The following hyperparameters are used to balance training speed and model depth:
 
+```python
 batch_size    = 16      # How many independent sequences per batch?
 block_size    = 32      # Maximum context length for predictions
 n_embed       = 32      # Size of our embedding vectors
@@ -40,61 +41,3 @@ n_head        = 4       # Number of attention heads
 n_layer       = 4       # Number of transformer blocks
 learning_rate = 1e-3    # Speed of weight updates
 max_iters     = 5000    # Total training steps
-
-
-🛠️ Tools & Libraries
-Python
-PyTorch
-NumPy
-
-
-🧠 Core Components
-🔹 Self-Attention
-
-Each token looks at previous tokens to understand context using:
-
-Query → what it is looking for
-Key → what it contains
-Value → what it shares
-🔹 Transformer Blocks
-
-Each block performs:
-
-Attention (communication between tokens)
-FeedForward (processing information)
-Residual connections (retain previous knowledge)
-🔄 Training Process
-
-The model learns by repeating:
-
- --> Sample a batch of text
---> Predict next tokens
---> Calculate loss
---> Backpropagate errors
---> Update weights
-
-
-📊 Results
-Step	Loss
-0     ~4.2
-500	  ~2.1
-5000	~0.8
-
-The decreasing loss shows the model is learning meaningful patterns.
-
-✨ Text Generation
-
-After training, the model generates text like:
-
-Input:  Once upon a time
-Output: Once upon a time there was a king...
-
-Text is generated one token at a time.
-
-🙌 Acknowledgment
-
-Inspired by Andrej Karpathy’s NanoGPT.
-
-📌 Final Note
-
-This project is a mini version of GPT, but the same architecture powers today’s most advanced AI systems.

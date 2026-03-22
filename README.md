@@ -1,6 +1,6 @@
 # 🧠 NanoGPT — Transformer from Scratch
 
-This project builds a **mini GPT model from scratch using PyTorch** to understand how modern language models work.
+This project builds a **mini GPT model from scratch using PyTorch** to understand the inner workings of modern Large Language Models (LLMs).
 
 Instead of using large pretrained models, this project focuses on **learning the core architecture** behind systems like ChatGPT, Claude, and Gemini.
 
@@ -8,44 +8,46 @@ Instead of using large pretrained models, this project focuses on **learning the
 
 ## 📌 About the Project
 
-This is a **character-level language model** that learns from raw text and predicts the next character.
+This is a **character-level language model** that learns from raw text and predicts the next character in a sequence. 
 
-Rather than classification, this is a **sequence prediction problem**, where the model generates text one token at a time.
+Rather than simple classification, this is a **sequence prediction problem**, where the model learns to generate coherent text one token at a time.
 
 ---
 
 ## 🏗️ Architecture Overview
 
-Raw Text → Encoding → Embeddings → Transformer Blocks → Output
+The data flow follows this pipeline:
+**Raw Text** → **Encoding** → **Embeddings** → **Transformer Blocks** → **Output (Predictions)**
 
-
-It includes:
-
-- Token Embeddings  
-- Positional Embeddings  
-- Multi-Head Self-Attention  
-- Feed Forward Layers  
-- Residual Connections  
-- Layer Normalization  
+### Key Components Included:
+* **Token Embeddings:** Mapping characters to vectors.
+* **Positional Embeddings:** Giving the model a sense of "where" a character is in a sentence.
+* **Multi-Head Self-Attention:** Allowing tokens to communicate with each other.
+* **Feed Forward Layers:** Processing the information gathered by attention.
+* **Residual Connections:** Helping gradients flow during deep training.
+* **Layer Normalization:** Keeping the internal math stable.
 
 ---
 
 ## ⚙️ Model Configuration
 
-python
-batch_size = 16
-block_size = 32
-n_embed = 32
-n_head = 4
-n_layer = 4
-learning_rate = 1e-3
-max_iters = 5000
+The following hyperparameters are used to balance training speed and model depth:
+
+batch_size    = 16      # How many independent sequences per batch?
+block_size    = 32      # Maximum context length for predictions
+n_embed       = 32      # Size of our embedding vectors
+n_head        = 4       # Number of attention heads
+n_layer       = 4       # Number of transformer blocks
+learning_rate = 1e-3    # Speed of weight updates
+max_iters     = 5000    # Total training steps
 
 
 🛠️ Tools & Libraries
 Python
 PyTorch
 NumPy
+
+
 🧠 Core Components
 🔹 Self-Attention
 
@@ -65,15 +67,17 @@ Residual connections (retain previous knowledge)
 
 The model learns by repeating:
 
-Sample a batch of text
-Predict next tokens
-Calculate loss
-Backpropagate errors
-Update weights
+ --> Sample a batch of text
+--> Predict next tokens
+--> Calculate loss
+--> Backpropagate errors
+--> Update weights
+
+
 📊 Results
 Step	Loss
-0	~4.2
-500	~2.1
+0     ~4.2
+500	  ~2.1
 5000	~0.8
 
 The decreasing loss shows the model is learning meaningful patterns.
@@ -86,7 +90,6 @@ Input:  Once upon a time
 Output: Once upon a time there was a king...
 
 Text is generated one token at a time.
-
 
 🙌 Acknowledgment
 

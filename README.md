@@ -32,14 +32,14 @@ It includes:
 
 ## ⚙️ Model Configuration
 
-```python
+python
 batch_size = 16
 block_size = 32
 n_embed = 32
 n_head = 4
 n_layer = 4
 learning_rate = 1e-3
-max_iters = 5000 """
+max_iters = 5000
 
 
 🛠️ Tools & Libraries
